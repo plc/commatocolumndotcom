@@ -1,0 +1,216 @@
+/**
+ * Comma to Column - SQL IN Statement Generator
+ *
+ * A simple webapp where you paste column data and it outputs a SQL IN statement
+ */
+
+const express = require('express');
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.use(express.json());
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.get('/', (req, res) => {
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comma to Column</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+      text-align: center;
+    }
+    .subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 2rem;
+    }
+    .converter {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+    @media (max-width: 768px) {
+      .converter {
+        grid-template-columns: 1fr;
+      }
+    }
+    .panel {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .panel h2 {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-bottom: 1rem;
+    }
+    textarea {
+      width: 100%;
+      height: 400px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 14px;
+      padding: 1rem;
+      resize: vertical;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #60a5fa;
+    }
+    .output-area {
+      width: 100%;
+      height: 400px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 14px;
+      padding: 1rem;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .middle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding-top: 3rem;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    .copy-btn {
+      background: #22c55e;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+    }
+    .copy-btn:hover {
+      background: #16a34a;
+    }
+    .copy-btn.copied {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Comma to Column</h1>
+    <p class="subtitle">Paste column data and convert it to a SQL IN statement</p>
+
+    <div class="converter">
+      <div class="panel">
+        <h2>Input (one value per line)</h2>
+        <textarea id="input" placeholder="dog&#10;cat&#10;bird"></textarea>
+      </div>
+
+      <div class="middle">
+        <button id="convert">Convert &rarr;</button>
+        <button id="copy" class="copy-btn">Copy</button>
+      </div>
+
+      <div class="panel">
+        <h2>SQL IN Statement</h2>
+        <div id="output" class="output-area"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById('input');
+    const output = document.getElementById('output');
+    const convertBtn = document.getElementById('convert');
+    const copyBtn = document.getElementById('copy');
+
+    function convert() {
+      const lines = input.value
+        .split('\\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+
+      if (lines.length === 0) {
+        output.textContent = '';
+        return;
+      }
+
+      const escaped = lines.map(line => {
+        // Escape single quotes by doubling them
+        const escapedLine = line.replace(/'/g, "''");
+        return "'" + escapedLine + "'";
+      });
+
+      output.textContent = "IN (" + escaped.join(',') + ")";
+    }
+
+    convertBtn.addEventListener('click', convert);
+
+    // Also convert on Enter key in textarea (with Cmd/Ctrl)
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+        convert();
+      }
+    });
+
+    copyBtn.addEventListener('click', () => {
+      const text = output.textContent;
+      if (text) {
+        navigator.clipboard.writeText(text).then(() => {
+          copyBtn.textContent = 'Copied!';
+          copyBtn.classList.add('copied');
+          setTimeout(() => {
+            copyBtn.textContent = 'Copy';
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        });
+      }
+    });
+  </script>
+</body>
+</html>`;
+
+  res.send(html);
+});
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on port ${port}`);
+});
