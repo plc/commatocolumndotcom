@@ -11,7 +11,7 @@
 #
 # The app name below will be replaced by `fly launch`
 
-app = "REPLACE_WITH_YOUR_APP_NAME"
+app = "commatocolumndotcom"
 primary_region = "sjc"
 
 # Build using the Dockerfile
