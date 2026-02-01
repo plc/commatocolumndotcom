@@ -1,22 +1,4 @@
-/**
- * Comma to Column - SQL IN Statement Generator
- *
- * A simple webapp where you paste column data and it outputs a SQL IN statement
- */
-
-const express = require('express');
-
-const app = express();
-const port = process.env.PORT || 3000;
-
-app.use(express.json());
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-app.get('/', (req, res) => {
-  const html = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -206,11 +188,4 @@ app.get('/', (req, res) => {
     });
   </script>
 </body>
-</html>`;
-
-  res.send(html);
-});
-
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on port ${port}`);
-});
+</html>
