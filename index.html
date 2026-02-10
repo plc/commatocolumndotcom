@@ -127,6 +127,7 @@
       </div>
 
       <div class="middle">
+        <button id="sample" style="background: #6366f1; font-size: 0.875rem; padding: 0.75rem 1.5rem;">Sample</button>
         <button id="convert">Convert &rarr;</button>
         <button id="copy" class="copy-btn">Copy</button>
       </div>
@@ -134,8 +135,12 @@
       <div class="panel">
         <h2>SQL IN Statement</h2>
         <div id="output" class="output-area"></div>
+        <p id="count" style="color: #94a3b8; font-size: 0.875rem; margin-top: 0.75rem;"></p>
       </div>
     </div>
+    <footer style="text-align: center; color: #94a3b8; margin-top: 2rem; font-size: 0.875rem;">
+      made by <a href="https://plc.vc/atg" style="color: #60a5fa; text-decoration: none;">Peter Clark</a>
+    </footer>
   </div>
 
   <script>
@@ -143,15 +148,36 @@
     const output = document.getElementById('output');
     const convertBtn = document.getElementById('convert');
     const copyBtn = document.getElementById('copy');
+    const sampleBtn = document.getElementById('sample');
+    const count = document.getElementById('count');
+
+    const dogBreeds = [
+      'Labrador Retriever', 'German Shepherd', 'Golden Retriever', 'French Bulldog',
+      'Bulldog', 'Poodle', 'Beagle', 'Rottweiler', 'German Shorthaired Pointer',
+      'Dachshund', 'Pembroke Welsh Corgi', 'Australian Shepherd', 'Yorkshire Terrier',
+      'Boxer', 'Cavalier King Charles Spaniel', 'Doberman Pinscher', 'Miniature Schnauzer',
+      'Cane Corso', 'Great Dane', 'Shih Tzu', 'Siberian Husky', 'Bernese Mountain Dog',
+      'Pomeranian', 'Boston Terrier', 'Havanese', 'Shetland Sheepdog', 'Brittany',
+      'English Springer Spaniel', 'Cocker Spaniel', 'Miniature American Shepherd',
+      'Border Collie', 'Vizsla', 'Pug', 'Weimaraner', 'Rhodesian Ridgeback',
+      'Chihuahua', 'Maltese', 'Basset Hound', 'Collie', 'Newfoundland',
+      'Saint Bernard', 'Bichon Frise', 'Bloodhound', 'Akita', 'Portuguese Water Dog',
+      'Chesapeake Bay Retriever', 'Dalmatian', 'Samoyed', 'Airedale Terrier', 'Whippet'
+    ];
+
+    sampleBtn.addEventListener('click', () => {
+      input.value = dogBreeds.join('\n');
+    });
 
     function convert() {
       const lines = input.value
-        .split('\\n')
+        .split('\n')
         .map(line => line.trim())
         .filter(line => line.length > 0);
 
       if (lines.length === 0) {
         output.textContent = '';
+        count.textContent = '';
         return;
       }
 
@@ -162,6 +188,7 @@
       });
 
       output.textContent = "IN (" + escaped.join(',') + ")";
+      count.textContent = "an array containing " + lines.length + " value" + (lines.length === 1 ? "" : "s");
     }
 
     convertBtn.addEventListener('click', convert);
