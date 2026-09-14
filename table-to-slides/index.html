@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Table to Slides</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+      text-align: center;
+    }
+    .subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 1rem;
+    }
+    .nav {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.875rem;
+    }
+    .nav a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+    .nav a:hover { text-decoration: underline; }
+    .converter {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+    @media (max-width: 768px) {
+      .converter {
+        grid-template-columns: 1fr;
+      }
+    }
+    .panel {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .panel h2 {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-bottom: 1rem;
+    }
+    textarea {
+      width: 100%;
+      height: 400px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 14px;
+      padding: 1rem;
+      resize: vertical;
+      tab-size: 4;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #60a5fa;
+    }
+    .output-area {
+      width: 100%;
+      height: 400px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 1rem;
+      overflow: auto;
+    }
+    .output-area .placeholder {
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+    .middle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding-top: 3rem;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    .copy-btn {
+      background: #22c55e;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+    }
+    .copy-btn:hover {
+      background: #16a34a;
+    }
+    .copy-btn.copied {
+      background: #94a3b8;
+    }
+    .sample-btn {
+      background: #6366f1;
+      font-size: 0.875rem;
+      padding: 0.75rem 1.5rem;
+    }
+    .sample-btn:hover {
+      background: #4f46e5;
+    }
+    #status {
+      color: #94a3b8;
+      font-size: 0.875rem;
+      text-align: center;
+      min-height: 1.25rem;
+    }
+    #status.ok { color: #4ade80; }
+    #status.err { color: #f87171; }
+    .count {
+      color: #94a3b8;
+      font-size: 0.875rem;
+      margin-top: 0.75rem;
+    }
+    footer {
+      text-align: center;
+      color: #94a3b8;
+      margin-top: 2rem;
+      font-size: 0.875rem;
+    }
+    footer a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Table to Slides</h1>
+    <p class="subtitle">Paste a table from Claude Code, Markdown, TSV or CSV and copy it as a formatted Google Slides table</p>
+    <p class="nav"><a href="/">&larr; Comma to Column</a></p>
+
+    <div class="converter">
+      <div class="panel">
+        <h2>Input (paste a table)</h2>
+        <textarea id="input" autofocus spellcheck="false" placeholder="Paste a table from Claude Code — box-drawing borders and all.
+
+&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+&#9474; Domain      &#9474; Pins   &#9474;
+&#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9532;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9508;
+&#9474; example.com &#9474; 12,400 &#9474;
+&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9524;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;
+
+Markdown, TSV and CSV work too."></textarea>
+      </div>
+
+      <div class="middle">
+        <button id="sample" class="sample-btn">Sample</button>
+        <button id="convert">Preview &rarr;</button>
+        <button id="copy" class="copy-btn">Copy for Slides</button>
+        <span id="status"></span>
+      </div>
+
+      <div class="panel">
+        <h2>Preview</h2>
+        <div id="output" class="output-area"><p class="placeholder">The formatted table appears here.</p></div>
+        <p id="count" class="count"></p>
+      </div>
+    </div>
+
+    <footer>
+      made by <a href="https://plc.vc/atg">Peter Clark</a>
+    </footer>
+  </div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    const input = document.getElementById('input');
+    const output = document.getElementById('output');
+    const status = document.getElementById('status');
+    const count = document.getElementById('count');
+    const convertBtn = document.getElementById('convert');
+    const copyBtn = document.getElementById('copy');
+    const sampleBtn = document.getElementById('sample');
+
+    const FONT = 'Arial, sans-serif';
+    const FS = 12; // pt
+
+    /* ---------- parse ---------- */
+
+    // Claude Code renders tables with box-drawing characters and a rule line between
+    // every row. Normalise the verticals to pipes, then drop the rules so the format
+    // sniffing below only ever sees content rows.
+    const BOX_V = /[│┃┆┇┊┋║]/g;
+    const RULE_CHARS = /^[\s|+:.\-=_─━┄┅┈┉┼┬┴├┤╋╂┿═╪╬╦╩╠╣┌┐└┘╭╮╰╯┏┓┗┛╔╗╚╝]+$/;
+    const isRule = (l) => RULE_CHARS.test(l) && /[-=─━┄┅┈┉]/.test(l);
+    const NULLISH = /^(-|–|—|\.{2,3}|n\/?a|null|none|nan|∅|\?)$/i;
+    const NUMERIC = /^[-+(]?[$£€¥]?\s?\d[\d,\s]*(\.\d+)?\)?\s*[%x×]?$/;
+
+    function cells(line) {
+      let s = line;
+      if (s.startsWith('|')) s = s.slice(1);
+      if (s.endsWith('|')) s = s.slice(0, -1);
+      return s.split(/(?<!\\)\|/).map((c) => c.replace(/\\\|/g, '|').trim());
+    }
+
+    function alignsFrom(line) {
+      return cells(line).map((c) => {
+        const l = c.startsWith(':'), r = c.endsWith(':');
+        return l && r ? 'center' : r ? 'right' : l ? 'left' : null;
+      });
+    }
+
+    function splitCsvLine(line) {
+      const out = [];
+      let cur = '', quoted = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (quoted) {
+          if (ch === '"') {
+            if (line[i + 1] === '"') { cur += '"'; i++; } else quoted = false;
+          } else cur += ch;
+        } else if (ch === '"') quoted = true;
+        else if (ch === ',') { out.push(cur); cur = ''; }
+        else cur += ch;
+      }
+      out.push(cur);
+      return out.map((c) => c.trim());
+    }
+
+    function parse(raw) {
+      const lines = raw.replace(BOX_V, '|').split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      if (!lines.length) return null;
+
+      let aligns = null;
+      const kept = [];
+      for (const line of lines) {
+        if (isRule(line)) {
+          // A Markdown separator row (the one with colons) tells us the alignment.
+          if (!aligns && kept.length && line.includes(':')) aligns = alignsFrom(line);
+          continue;
+        }
+        kept.push(line);
+      }
+      if (!kept.length) return null;
+
+      let rows;
+      if (kept.some((l) => l.includes('|'))) rows = kept.filter((l) => l.includes('|')).map(cells);
+      else if (kept.some((l) => l.includes('\t'))) rows = kept.map((l) => l.split('\t').map((c) => c.trim()));
+      else if (kept.some((l) => l.includes(','))) rows = kept.map(splitCsvLine);
+      else rows = kept.map((l) => [l]);
+
+      rows = rows.filter((r) => r.some((c) => c !== ''));
+      if (!rows.length) return null;
+
+      const width = Math.max(...rows.map((r) => r.length));
+      rows = rows.map((r) => r.concat(Array(width - r.length).fill('')));
+      return { rows, aligns, width };
+    }
+
+    function columnAligns(t) {
+      const body = t.rows.slice(1);
+      return Array.from({ length: t.width }, (_, i) => {
+        const declared = t.aligns && t.aligns[i];
+        if (declared) return declared;
+        const vals = body
+          .map((r) => (r[i] || '').replace(/\*\*|__|`/g, '').trim())
+          .filter((v) => v !== '' && !NULLISH.test(v));
+        return vals.length && vals.every((v) => NUMERIC.test(v)) ? 'right' : 'left';
+      });
+    }
+
+    /* ---------- build ---------- */
+
+    const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    function inline(text) {
+      let s = esc(text);
+      s = s.replace(/`([^`]+)`/g, '<span style="font-family:\'Roboto Mono\',Consolas,monospace">$1</span>');
+      s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+        '<a href="$2" style="color:#1a73e8;text-decoration:underline">$1</a>');
+      s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/__([^_]+)__/g, '<b>$1</b>');
+      s = s.replace(/(^|[\s(])\*([^*\n]+)\*/g, '$1<i>$2</i>');
+      s = s.replace(/~~([^~]+)~~/g, '<s>$1</s>');
+      return s || '&nbsp;';
+    }
+
+    function toHtml(t) {
+      const aligns = columnAligns(t);
+      const base = `font-family:${FONT};font-size:${FS}pt;`;
+      const out = [`<table cellspacing="0" cellpadding="0" style="${base}border-collapse:collapse;background-color:#ffffff">`];
+
+      t.rows.forEach((row, r) => {
+        const head = r === 0;
+        out.push('<tr>');
+        row.forEach((cell, c) => {
+          const last = r === t.rows.length - 1;
+          const style = base +
+            'padding:7pt 11pt;background-color:#ffffff;' +
+            `color:${head ? '#1f2328' : '#3c4043'};` +
+            `text-align:${aligns[c]};vertical-align:middle;` +
+            `font-weight:${head ? 700 : 400};` +
+            (last ? '' : 'border-bottom:1px solid #dadce0;');
+          const tag = head ? 'th' : 'td';
+          out.push(`<${tag} style="${style}">${inline(cell)}</${tag}>`);
+        });
+        out.push('</tr>');
+      });
+
+      out.push('</table>');
+      return out.join('');
+    }
+
+    const toText = (t) => t.rows.map((r) => r.join('\t')).join('\n');
+
+    /* ---------- copy ---------- */
+
+    async function copyRich(html, plain) {
+      if (navigator.clipboard && window.ClipboardItem) {
+        try {
+          await navigator.clipboard.write([new ClipboardItem({
+            'text/html': new Blob([html], { type: 'text/html' }),
+            'text/plain': new Blob([plain], { type: 'text/plain' }),
+          })]);
+          return true;
+        } catch (e) { /* fall through */ }
+      }
+      // Fallback: copy a live selection out of an off-screen contenteditable.
+      const host = document.createElement('div');
+      host.contentEditable = 'true';
+      host.style.cssText = 'position:fixed;left:-9999px;top:0';
+      host.innerHTML = html;
+      document.body.appendChild(host);
+      const range = document.createRange();
+      range.selectNodeContents(host);
+      const sel = getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      const ok = document.execCommand('copy');
+      sel.removeAllRanges();
+      host.remove();
+      return ok;
+    }
+
+    function flash(msg, kind) {
+      status.textContent = msg;
+      status.className = kind || '';
+      clearTimeout(flash.t);
+      flash.t = setTimeout(() => { status.textContent = ''; status.className = ''; }, 4000);
+    }
+
+    /* ---------- wiring ---------- */
+
+    const SAMPLE = [
+      '| Breed                | Group     | Registrations | Share  |',
+      '| -------------------- | --------- | ------------: | -----: |',
+      '| Labrador Retriever   | Sporting  |        98,300 | 12.4%  |',
+      '| French Bulldog       | Non-Sport |        87,100 | 11.0%  |',
+      '| Golden Retriever     | Sporting  |        71,400 |  9.0%  |',
+      '| German Shepherd      | Herding   |        68,900 |  8.7%  |',
+      '| **Poodle**           | Non-Sport |        54,200 |  6.8%  |',
+    ].join('\n');
+
+    function preview() {
+      const t = parse(input.value);
+      if (!t) {
+        output.innerHTML = '<p class="placeholder">The formatted table appears here.</p>';
+        count.textContent = '';
+        return null;
+      }
+      output.innerHTML = toHtml(t);
+      const bodyRows = t.rows.length - 1;
+      count.textContent = 'a table of ' + t.width + ' column' + (t.width === 1 ? '' : 's') +
+        ' and ' + bodyRows + ' row' + (bodyRows === 1 ? '' : 's');
+      return t;
+    }
+
+    sampleBtn.addEventListener('click', () => {
+      input.value = SAMPLE;
+      preview();
+    });
+
+    convertBtn.addEventListener('click', preview);
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) preview();
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const t = preview();
+      if (!t) return flash('Paste a table first.', 'err');
+      const ok = await copyRich(toHtml(t), toText(t));
+      if (ok) {
+        copyBtn.textContent = 'Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy for Slides';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+        flash('Paste onto a slide with ⌘V.', 'ok');
+      } else {
+        flash('Copy was blocked by the browser.', 'err');
+      }
+    });
+  })();
+  </script>
+</body>
+</html>
