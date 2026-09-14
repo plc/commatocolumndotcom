@@ -169,10 +169,12 @@
       <div class="panel">
         <h2>Input (paste a table)</h2>
         <textarea id="input" autofocus spellcheck="false" placeholder="┌────────────┬───────┐
-│ Planet     │ Moons │
+│   Planet   │ Moons │
 ├────────────┼───────┤
 │ Jupiter    │    97 │
+├────────────┼───────┤
 │ Saturn     │   274 │
+├────────────┼───────┤
 │ Neptune    │    16 │
 └────────────┴───────┘"></textarea>
       </div>
@@ -220,7 +222,10 @@
     const RULE_CHARS = /^[\s|+:.\-=_─━┄┅┈┉┼┬┴├┤╋╂┿═╪╬╦╩╠╣┌┐└┘╭╮╰╯┏┓┗┛╔╗╚╝]+$/;
     const isRule = (l) => RULE_CHARS.test(l) && /[-=─━┄┅┈┉]/.test(l);
     const NULLISH = /^(-|–|—|\.{2,3}|n\/?a|null|none|nan|∅|\?)$/i;
-    const NUMERIC = /^[-+(]?[$£€¥]?\s?\d[\d,\s]*(\.\d+)?\)?\s*[%x×]?$/;
+    // Leading sign may be a real minus (U+2212), which is what Claude Code prints.
+    const NUMERIC = /^[-+−(]?[$£€¥]?\s?\d[\d,\s]*(\.\d+)?\)?\s*[%x×]?$/;
+    // Significance markers trail an otherwise numeric cell: "−7.38% ***", "+0.07% ns".
+    const SIGNIF = /\s*(\*{1,3}|n\.?s\.?)$/i;
 
     function cells(line) {
       let s = line;
@@ -291,7 +296,8 @@
         const vals = body
           .map((r) => (r[i] || '').replace(/\*\*|__|`/g, '').trim())
           .filter((v) => v !== '' && !NULLISH.test(v));
-        return vals.length && vals.every((v) => NUMERIC.test(v)) ? 'right' : 'left';
+        return vals.length && vals.every((v) => NUMERIC.test(v.replace(SIGNIF, '').trim()))
+          ? 'right' : 'left';
       });
     }
 
