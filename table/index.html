@@ -168,15 +168,19 @@
     <div class="converter">
       <div class="panel">
         <h2>Input (paste a table)</h2>
-        <textarea id="input" autofocus spellcheck="false" placeholder="┌────────────┬───────┐
-│   Planet   │ Moons │
-├────────────┼───────┤
-│ Jupiter    │ 97    │
-├────────────┼───────┤
-│ Saturn     │ 274   │
-├────────────┼───────┤
-│ Neptune    │ 16    │
-└────────────┴───────┘"></textarea>
+        <textarea id="input" autofocus spellcheck="false" placeholder="┌────────────────────┬──────────┬────────┐
+│       Breed        │  Group   │ Count  │
+├────────────────────┼──────────┼────────┤
+│ Labrador Retriever │ Sporting │ 98,300 │
+├────────────────────┼──────────┼────────┤
+│ German Shepherd    │ Herding  │ 68,900 │
+├────────────────────┼──────────┼────────┤
+│ Golden Retriever   │ Sporting │ 71,400 │
+├────────────────────┼──────────┼────────┤
+│ Beagle             │ Hound    │ 32,100 │
+├────────────────────┼──────────┼────────┤
+│ Rottweiler         │ Working  │ 24,500 │
+└────────────────────┴──────────┴────────┘"></textarea>
       </div>
 
       <div class="middle">
@@ -382,20 +386,21 @@
 
     /* ---------- wiring ---------- */
 
+    // Same table the placeholder shows, so Sample just makes the ghost text real.
     const SAMPLE = [
-      '┌────────────────────┬──────────────┬───────────────┐',
-      '│       Breed        │    Group     │ Registrations │',
-      '├────────────────────┼──────────────┼───────────────┤',
-      '│ Labrador Retriever │ Sporting     │ 98,300        │',
-      '├────────────────────┼──────────────┼───────────────┤',
-      '│ French Bulldog     │ Non-Sporting │ 87,100        │',
-      '├────────────────────┼──────────────┼───────────────┤',
-      '│ Golden Retriever   │ Sporting     │ 71,400        │',
-      '├────────────────────┼──────────────┼───────────────┤',
-      '│ German Shepherd    │ Herding      │ 68,900        │',
-      '├────────────────────┼──────────────┼───────────────┤',
-      '│ Poodle             │ Non-Sporting │ 54,200        │',
-      '└────────────────────┴──────────────┴───────────────┘',
+      '┌────────────────────┬──────────┬────────┐',
+      '│       Breed        │  Group   │ Count  │',
+      '├────────────────────┼──────────┼────────┤',
+      '│ Labrador Retriever │ Sporting │ 98,300 │',
+      '├────────────────────┼──────────┼────────┤',
+      '│ German Shepherd    │ Herding  │ 68,900 │',
+      '├────────────────────┼──────────┼────────┤',
+      '│ Golden Retriever   │ Sporting │ 71,400 │',
+      '├────────────────────┼──────────┼────────┤',
+      '│ Beagle             │ Hound    │ 32,100 │',
+      '├────────────────────┼──────────┼────────┤',
+      '│ Rottweiler         │ Working  │ 24,500 │',
+      '└────────────────────┴──────────┴────────┘',
     ].join('\n');
 
     function convert() {

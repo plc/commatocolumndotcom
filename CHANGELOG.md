@@ -2,8 +2,11 @@
 
 ## 2026-09-14
 
-- Added `/table-to-slides/`, a second tool that copies a pasted table to the clipboard as a
-  formatted table for Google Slides.
+- Added `/table/`, a second tool that copies a pasted table to the clipboard as a formatted
+  table for Google Slides. Briefly lived at `/table-to-slides/` before being shortened; no
+  redirect was left behind, since the longer path was only live for about an hour.
+- Each page's placeholder is now exactly what its Sample button loads, rather than showing
+  unrelated data. Clicking Sample makes the ghost text real.
 - Restyled that tool from its standalone light-mode original into the dark slate UI used by
   the home page, and added a preview panel so the layout mirrors the input/output split of
   Comma to Column.
@@ -30,8 +33,8 @@
 - Rich-text copy needs `ClipboardItem`, which requires a secure context. On plain `http://`
   (other than localhost) the code falls back to selecting an off-screen `contenteditable`
   and calling `document.execCommand('copy')`.
-- Pages link with root-relative paths (`/`, `/table-to-slides/`), so opening a file over
-  `file://` breaks the nav. Use a local server.
+- Pages link with root-relative paths (`/`, `/table/`), so opening a file over `file://`
+  breaks the nav. Use a local server.
 - The clipboard table is deliberately Arial, not the site's Jost. Jost is a webfont Google
   Slides has no access to, so a table pasted in Jost would fall back to something arbitrary
   on the slide. The preview panel shows Arial for the same reason: it should show what

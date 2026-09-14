@@ -9,7 +9,7 @@ browser.
 | Path                 | Tool             | What it does                                                                         |
 | -------------------- | ---------------- | ------------------------------------------------------------------------------------ |
 | `/`                  | Comma to Column  | Turns a column of pasted values into a SQL `IN (...)` list, quoting and escaping each. |
-| `/table-to-slides/`  | Table to Slides  | Turns a pasted table into a formatted table on the clipboard, ready to paste into Google Slides. |
+| `/table/`            | Table to Slides  | Turns a pasted table into a formatted table on the clipboard, ready to paste into Google Slides. |
 
 Table to Slides accepts Claude Code box-drawing tables, Markdown, CSV and TSV. It infers
 column alignment (right for numeric columns, or from a Markdown `:---:` separator row),
