@@ -8,6 +8,9 @@
   the home page, and added a preview panel so the layout mirrors the input/output split of
   Comma to Column.
 - Added a nav link between the two pages.
+- Synced the Jost typeface onto the new page after it landed on the home page. The tables
+  copied to the clipboard stay on Arial deliberately — Google Slides needs a font it has
+  locally, so the preview panel shows Arial too.
 
 ### Notes
 
