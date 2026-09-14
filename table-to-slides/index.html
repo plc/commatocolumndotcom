@@ -162,7 +162,7 @@
 <body>
   <div class="container">
     <h1>Table to Slides</h1>
-    <p class="subtitle">Paste a table from Claude Code, Markdown, TSV or CSV and copy it as a formatted Google Slides table</p>
+    <p class="subtitle">Paste a table from Claude Code, Markdown, CSV or TSV and convert it for Google Slides</p>
     <p class="nav"><a href="/">&larr; Comma to Column</a></p>
 
     <div class="converter">
@@ -181,13 +181,13 @@
 
       <div class="middle">
         <button id="sample" class="sample-btn">Sample</button>
-        <button id="convert">Preview &rarr;</button>
-        <button id="copy" class="copy-btn">Copy for Slides</button>
+        <button id="convert">Convert &rarr;</button>
+        <button id="copy" class="copy-btn">Copy</button>
         <span id="status"></span>
       </div>
 
       <div class="panel">
-        <h2>Preview</h2>
+        <h2>Google Slides Table</h2>
         <div id="output" class="output-area"><p class="placeholder">The formatted table appears here.</p></div>
         <p id="count" class="count"></p>
       </div>
@@ -383,16 +383,22 @@
     /* ---------- wiring ---------- */
 
     const SAMPLE = [
-      '| Breed                | Group     | Registrations | Share  |',
-      '| -------------------- | --------- | ------------: | -----: |',
-      '| Labrador Retriever   | Sporting  |        98,300 | 12.4%  |',
-      '| French Bulldog       | Non-Sport |        87,100 | 11.0%  |',
-      '| Golden Retriever     | Sporting  |        71,400 |  9.0%  |',
-      '| German Shepherd      | Herding   |        68,900 |  8.7%  |',
-      '| **Poodle**           | Non-Sport |        54,200 |  6.8%  |',
+      '┌────────────────────┬──────────────┬───────────────┐',
+      '│       Breed        │    Group     │ Registrations │',
+      '├────────────────────┼──────────────┼───────────────┤',
+      '│ Labrador Retriever │ Sporting     │ 98,300        │',
+      '├────────────────────┼──────────────┼───────────────┤',
+      '│ French Bulldog     │ Non-Sporting │ 87,100        │',
+      '├────────────────────┼──────────────┼───────────────┤',
+      '│ Golden Retriever   │ Sporting     │ 71,400        │',
+      '├────────────────────┼──────────────┼───────────────┤',
+      '│ German Shepherd    │ Herding      │ 68,900        │',
+      '├────────────────────┼──────────────┼───────────────┤',
+      '│ Poodle             │ Non-Sporting │ 54,200        │',
+      '└────────────────────┴──────────────┴───────────────┘',
     ].join('\n');
 
-    function preview() {
+    function convert() {
       const t = parse(input.value);
       if (!t) {
         output.innerHTML = '<p class="placeholder">The formatted table appears here.</p>';
@@ -408,27 +414,28 @@
 
     sampleBtn.addEventListener('click', () => {
       input.value = SAMPLE;
-      preview();
+      convert();
     });
 
-    convertBtn.addEventListener('click', preview);
+    convertBtn.addEventListener('click', convert);
 
+    // Also convert on Enter key in textarea (with Cmd/Ctrl)
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) preview();
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) convert();
     });
 
     copyBtn.addEventListener('click', async () => {
-      const t = preview();
+      const t = convert();
       if (!t) return flash('Paste a table first.', 'err');
       const ok = await copyRich(toHtml(t), toText(t));
       if (ok) {
         copyBtn.textContent = 'Copied!';
         copyBtn.classList.add('copied');
         setTimeout(() => {
-          copyBtn.textContent = 'Copy for Slides';
+          copyBtn.textContent = 'Copy';
           copyBtn.classList.remove('copied');
         }, 2000);
-        flash('Paste onto a slide with ⌘V.', 'ok');
+        flash('Now paste onto a slide.', 'ok');
       } else {
         flash('Copy was blocked by the browser.', 'err');
       }
